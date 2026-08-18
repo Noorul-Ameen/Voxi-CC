@@ -61,11 +61,13 @@ function handleUpstream(c: { json: (o: unknown, s?: number) => Response }, err: 
   return apiError(c, { code: 'INTERNAL', message: 'Unexpected server error.', retryable: true }, 500);
 }
 
-export function createApi(): Hono<Ctx> {
+export function createApi(
+  serviceFactory: (env: WorkerEnv) => AppServices = createServices,
+): Hono<Ctx> {
   const api = new Hono<Ctx>();
 
   api.use('*', async (c, next) => {
-    c.set('services', createServices(c.env));
+    c.set('services', serviceFactory(c.env));
     await next();
     // Secure headers on API responses.
     c.res.headers.set('X-Content-Type-Options', 'nosniff');

@@ -12,6 +12,8 @@ export interface VoxClientOptions {
   timeoutMs?: number;
   retries?: number;
   userAgent?: string;
+  /** Injectable fetch (tests / alternative transports). Defaults to global fetch. */
+  fetcher?: typeof fetch;
 }
 
 export class UpstreamError extends Error {
@@ -26,12 +28,16 @@ const DEFAULTS = {
   cacheTtl: 300, // 5 minutes — showtimes freshness vs. politeness to VOX
   timeoutMs: 12_000,
   retries: 1,
-  userAgent:
-    'VoxConversationalCommerce/1.0 (+conversational cinema assistant; contact repo owner)',
+  // Empty string = do not set a User-Agent header (the runtime default is
+  // used). Override via VOX_USER_AGENT when an environment requires it.
+  userAgent: '',
 };
 
 export class VoxClient {
-  private readonly opts: Required<Omit<VoxClientOptions, 'cache'>> & { cache?: KVNamespace };
+  private readonly opts: Required<Omit<VoxClientOptions, 'cache' | 'fetcher'>> & {
+    cache?: KVNamespace;
+    fetcher?: typeof fetch;
+  };
   /** Rolling window of recent upstream failures (for monitoring). */
   private static recentFailures: { at: string; url: string; code: string }[] = [];
 
@@ -64,12 +70,14 @@ export class VoxClient {
     let lastError: ApiError | undefined;
     for (let attempt = 0; attempt <= this.opts.retries; attempt++) {
       try {
-        const res = await fetch(url, {
-          headers: {
-            accept: 'text/html,application/xhtml+xml',
-            'accept-language': 'en',
-            'user-agent': this.opts.userAgent,
-          },
+        const headers: Record<string, string> = {
+          accept: 'text/html,application/xhtml+xml',
+          'accept-language': 'en',
+        };
+        if (this.opts.userAgent) headers['user-agent'] = this.opts.userAgent;
+        const doFetch = this.opts.fetcher ?? fetch;
+        const res = await doFetch(url, {
+          headers,
           signal: AbortSignal.timeout(this.opts.timeoutMs),
           redirect: 'follow',
         });

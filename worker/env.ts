@@ -8,6 +8,8 @@ export interface WorkerEnv {
   VOX_ASSETS_URL: string;
   VOX_PARTNER_API_BASE_URL: string;
   ELEVENLABS_AGENT_ID: string;
+  /** Optional User-Agent override for VOX fetches (empty = runtime default). */
+  VOX_USER_AGENT?: string;
   COMMERCE_MODE: 'demo' | 'production';
   // Secrets (optional at runtime; features fail closed without them)
   ELEVENLABS_API_KEY?: string;

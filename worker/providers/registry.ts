@@ -19,6 +19,7 @@ export function createServices(env: WorkerEnv): AppServices {
   const client = new VoxClient({
     baseUrl: env.VOX_BASE_URL || 'https://uae.voxcinemas.com',
     cache: env.VOX_CACHE,
+    userAgent: env.VOX_USER_AGENT,
   });
   const vox = new VoxDiscoveryProvider(client);
 

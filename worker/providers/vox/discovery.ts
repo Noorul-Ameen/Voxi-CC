@@ -40,7 +40,11 @@ const SHOWTIME_TTL = 300; // 5 min for showtimes
 export class VoxDiscoveryProvider
   implements MovieDiscoveryProvider, CinemaProvider, ShowtimeProvider, HealthCheckable
 {
-  constructor(private readonly client: VoxClient) {}
+  constructor(
+    private readonly client: VoxClient,
+    /** Injectable clock — tests pin this to the fixture capture instant. */
+    private readonly nowFn: () => Date = () => new Date(),
+  ) {}
 
   /* ── Movies ── */
 
@@ -101,7 +105,7 @@ export class VoxDiscoveryProvider
 
   async getShowtimesForMovie(movieId: string, date: string): Promise<Showtime[]> {
     if (!/^[a-z0-9-]+$/.test(movieId)) return [];
-    const today = nowInDubai().date;
+    const today = nowInDubai(this.nowFn()).date;
     const path =
       date === today
         ? `/movies/${movieId}`
@@ -117,7 +121,7 @@ export class VoxDiscoveryProvider
 
   async getShowtimesForCinema(cinemaId: string, date: string): Promise<Showtime[]> {
     if (!/^[a-z0-9-]+$/.test(cinemaId)) return [];
-    const today = nowInDubai().date;
+    const today = nowInDubai(this.nowFn()).date;
     const path =
       date === today
         ? `/showtimes/${cinemaId}`
@@ -134,7 +138,7 @@ export class VoxDiscoveryProvider
   async getAvailableDates(movieId: string): Promise<string[]> {
     if (!/^[a-z0-9-]+$/.test(movieId)) return [];
     const html = await this.client.getPage(`/movies/${movieId}`, SHOWTIME_TTL);
-    return parseAvailableDates(html, nowInDubai().date);
+    return parseAvailableDates(html, nowInDubai(this.nowFn()).date);
   }
 
   /* ── Filtered discovery (drives movie cards + conversation) ── */
@@ -151,7 +155,7 @@ export class VoxDiscoveryProvider
     // upstream traffic bounded we only expand showtimes for the top matches.
     const needShowtimes =
       filters.date !== undefined || filters.format !== undefined || filters.timeFromMinutes !== undefined;
-    const date = filters.date ?? nowInDubai().date;
+    const date = filters.date ?? nowInDubai(this.nowFn()).date;
     const expand = needShowtimes ? movies.slice(0, 8) : [];
     const expanded = new Map<string, Showtime[]>();
     await Promise.all(
@@ -179,7 +183,7 @@ export class VoxDiscoveryProvider
 
   private async discoverAtCinema(filters: FilterState): Promise<MovieWithShowtimes[]> {
     const cinemaId = filters.cinemaId!;
-    const date = filters.date ?? nowInDubai().date;
+    const date = filters.date ?? nowInDubai(this.nowFn()).date;
     const [dayMovies, catalog] = await Promise.all([
       this.getCinemaDayMovies(cinemaId, date),
       this.listMovies('now_showing').catch(() => [] as Movie[]),
@@ -210,7 +214,7 @@ export class VoxDiscoveryProvider
   }
 
   private async getCinemaDayMovies(cinemaId: string, date: string) {
-    const today = nowInDubai().date;
+    const today = nowInDubai(this.nowFn()).date;
     const path =
       date === today
         ? `/showtimes/${cinemaId}`
