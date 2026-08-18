@@ -1,3 +1,5 @@
+import type { ProviderError } from './errors';
+
 /** Commerce models. Protected operations are FAIL-CLOSED: results can only
  *  be produced by genuine upstream VOX success — never simulated as real. */
 
@@ -59,7 +61,7 @@ export type CommerceResult<T> =
   | { status: 'ok'; data: T; demo?: false }
   | { status: 'demo'; data: T; demoLabel: string }
   | { status: 'unavailable'; reason: string; retryable: boolean }
-  | { status: 'error'; error: import('./errors').ProviderError };
+  | { status: 'error'; error: ProviderError };
 
 export interface BookingResult {
   bookingReference: string;

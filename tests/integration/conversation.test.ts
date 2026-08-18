@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ConversationState } from '@shared/models';
 import { createInitialState, runConversationTurn } from '@worker/conversation/engine';
-import { createFixtureServices, FIXTURE_NOW, FIXTURE_TODAY, FIXTURE_TOMORROW } from '../helpers/fixtureServices';
+import { createFixtureServices, FIXTURE_NOW, FIXTURE_TOMORROW } from '../helpers/fixtureServices';
 
 async function turn(message: string, state?: ConversationState, services = createFixtureServices()) {
   return runConversationTurn({
@@ -127,7 +127,7 @@ describe('discovery & filters', () => {
 
   it('"after 7 PM" produces a time floor and filters sessions', async () => {
     const services = createFixtureServices();
-    let s = (await turn('spiderman', undefined, services)).updatedConversationState;
+    const s = (await turn('spiderman', undefined, services)).updatedConversationState;
     const t = await turn('What times are available after 7 PM?', s, services);
     expect(t.updatedConversationState.activeFilters.timeFromMinutes).toBe(19 * 60);
     for (const st of t.showtimes!) {
@@ -146,7 +146,7 @@ describe('discovery & filters', () => {
 describe('upstream failure handling', () => {
   it('reports failure without fabricating data and preserves selections', async () => {
     const okServices = createFixtureServices();
-    let s = (await turn('spiderman at MOE tomorrow', undefined, okServices)).updatedConversationState;
+    const s = (await turn('spiderman at MOE tomorrow', undefined, okServices)).updatedConversationState;
 
     const brokenServices = createFixtureServices({ failAll: true });
     const t = await turn('show me the showtimes', s, brokenServices);
@@ -198,7 +198,7 @@ describe('protected commerce stays fail-closed in conversation', () => {
 describe('multi-turn context preservation', () => {
   it('keeps accumulated filters across turns', async () => {
     const services = createFixtureServices();
-    let s = (await turn('Show Malayalam movies', undefined, services)).updatedConversationState;
+    const s = (await turn('Show Malayalam movies', undefined, services)).updatedConversationState;
     expect(s.activeFilters.language).toBe('Malayalam');
     const t2 = await turn('only family friendly ones please', s, services);
     expect(t2.updatedConversationState.activeFilters.language).toBe('Malayalam');

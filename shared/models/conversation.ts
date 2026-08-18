@@ -1,5 +1,7 @@
 import type { Cinema, Movie, MovieFormat, Showtime } from './movie';
 import type { FilterState } from './filters';
+import type { MovieWithShowtimes } from './movie';
+import type { ApiError } from './errors';
 import type { SeatSelection, TicketSelection, FoodSelection } from './commerce';
 
 export type ConversationIntent =
@@ -97,10 +99,10 @@ export interface ConversationResponse {
   detectedIntent: ConversationIntent;
   updatedConversationState: ConversationState;
   movies?: Movie[];
-  moviesWithShowtimes?: import('./movie').MovieWithShowtimes[];
+  moviesWithShowtimes?: MovieWithShowtimes[];
   cinemas?: Cinema[];
   showtimes?: Showtime[];
   availableDates?: string[];
   suggestedActions: SuggestedAction[];
-  structuredError?: import('./errors').ApiError;
+  structuredError?: ApiError;
 }

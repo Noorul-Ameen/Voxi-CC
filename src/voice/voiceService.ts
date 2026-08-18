@@ -77,8 +77,9 @@ export async function fetchVoiceGrant(): Promise<VoiceGrant> {
         err.apiError.code === 'CAPABILITY_UNAVAILABLE'
           ? 'Voice is not configured in this environment. You can continue using chat.'
           : 'Voice is temporarily unavailable. You can continue using chat.',
+        { cause: err },
       );
     }
-    throw new Error('Voice is temporarily unavailable. You can continue using chat.');
+    throw new Error('Voice is temporarily unavailable. You can continue using chat.', { cause: err });
   }
 }

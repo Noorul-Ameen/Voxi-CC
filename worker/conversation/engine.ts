@@ -17,7 +17,6 @@ import type {
   JourneyStage,
   Movie,
   MovieWithShowtimes,
-  Showtime,
   SuggestedAction,
 } from '@shared/models';
 import { UAE_TIMEZONE, formatDateLabel, formatMinutes, nowInDubai, uid } from '@shared/utils';

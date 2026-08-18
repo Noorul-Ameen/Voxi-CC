@@ -22,7 +22,7 @@ import type {
   MovieDiscoveryProvider,
   ShowtimeProvider,
 } from '../types';
-import { VoxClient } from './client';
+import type { VoxClient } from './client';
 import {
   isFamilySafeRating,
   parseAvailableDates,

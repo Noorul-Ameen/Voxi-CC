@@ -11,6 +11,9 @@
   "main": "worker/index.ts",
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
+  // Static assets are served by the assets layer; security headers for them
+  // come from public/_headers (copied into the build). API responses get
+  // their headers in worker code.
   "assets": {
     "not_found_handling": "single-page-application",
     "binding": "ASSETS"

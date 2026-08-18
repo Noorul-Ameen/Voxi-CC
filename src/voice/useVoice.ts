@@ -72,7 +72,6 @@ export function useVoice() {
     } catch {
       // Non-fatal: context sync is best-effort.
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationState, conversation.status]);
 
   const start = useCallback(async () => {
