@@ -128,10 +128,11 @@ test.describe('filters', () => {
 test.describe('voice degradation', () => {
   test('voice failure leaves text chat fully functional', async ({ page, context }) => {
     await context.grantPermissions(['microphone']);
+    // Simulate ElevenLabs being unreachable — voice must degrade gracefully.
+    await page.route('**/api/voice/session', (route) => route.abort('connectionrefused'));
     await page.goto('/');
     await expect(page.getByTestId('movie-card').first()).toBeVisible({ timeout: 30_000 });
     await page.getByTestId('voice-toggle').click();
-    // ElevenLabs is not configured in this environment → graceful error.
     await expect(page.getByTestId('voice-status')).toContainText(/chat/i, { timeout: 20_000 });
     // Text keeps working.
     await sendChat(page, 'khalifa');
