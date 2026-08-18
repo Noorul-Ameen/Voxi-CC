@@ -71,28 +71,61 @@ export function findMovieMention(
     const titleTokens = title.split(' ').filter((t) => t.length > 0);
     if (titleTokens.length === 0) continue;
 
-    // Score = coverage of title tokens present (fuzzily) in the message.
-    let covered = 0;
-    let strong = 0;
-    for (const tt of titleTokens) {
-      let bestTok = 0;
+    // Compound handling: "spiderman" should match "spider man". A message
+    // token matching two adjacent title tokens joined covers both.
+    const coveredByBigram = new Array<boolean>(titleTokens.length).fill(false);
+    for (let i = 0; i < titleTokens.length - 1; i++) {
+      const joined = titleTokens[i]! + titleTokens[i + 1]!;
+      if (joined.length < 5) continue;
       for (const mt of msgTokens) {
-        if (mt === tt) { bestTok = 1; break; }
-        const s = fuzzyScore(mt, tt);
-        bestTok = Math.max(bestTok, s);
+        // The message token must actually be compound-length — otherwise a
+        // short word ("the") inside the joined string would fake-cover both.
+        if (mt.length < joined.length - 2) continue;
+        if (mt === joined || fuzzyScore(mt, joined) >= 0.85) {
+          coveredByBigram[i] = true;
+          coveredByBigram[i + 1] = true;
+        }
       }
-      if (bestTok >= 0.99) strong++;
-      if (bestTok >= 0.72) covered += bestTok;
     }
+
+    // Per-title-token best match against the message (bigrams count).
+    const bestPerToken = titleTokens.map((tt, i) => {
+      let bestTok = coveredByBigram[i] ? 1 : 0;
+      for (const mt of msgTokens) {
+        if (bestTok >= 1) break;
+        if (mt === tt) { bestTok = 1; break; }
+        bestTok = Math.max(bestTok, fuzzyScore(mt, tt));
+      }
+      return bestTok;
+    });
+    const strong = bestPerToken.filter((s) => s >= 0.99).length;
+    const covered = bestPerToken.reduce((acc, s) => (s >= 0.72 ? acc + s : acc), 0);
     const coverage = covered / titleTokens.length;
-    // Distinctive-token guard: at least one non-stopword exact-ish hit.
+
+    // Partial-title support: users say "spiderman" for "Spider-Man: Brand
+    // New Day" or "khalifa" for "Khalifa (Malayalam)". A fully-covered title
+    // prefix is a strong signal even when overall coverage is low.
+    const prefixLen = Math.min(2, titleTokens.length);
+    const prefixCovered = bestPerToken.slice(0, prefixLen).every((s) => s >= 0.8);
+    const firstToken = titleTokens[0]!;
+    const GENERIC = new Set([...STOPWORDS, 'family', 'action', 'comedy', 'drama', 'horror', 'love', 'story', 'great', 'little', 'night']);
+    const prefixScore = prefixCovered
+      ? 0.82
+      : bestPerToken[0]! >= 0.85 && firstToken.length >= 5 && !GENERIC.has(firstToken)
+        ? 0.7
+        : 0;
+    // Distinctive-token guard: at least one non-stopword exact-ish hit
+    // (bigram-compound coverage counts, e.g. "spiderman" → "spider man").
     const distinctiveHit = titleTokens.some(
-      (tt) => !STOPWORDS.has(tt) && msgTokens.some((mt) => mt === tt || fuzzyScore(mt, tt) >= 0.8),
+      (tt, i) =>
+        !STOPWORDS.has(tt) &&
+        (coveredByBigram[i] || msgTokens.some((mt) => mt === tt || fuzzyScore(mt, tt) >= 0.8)),
     );
     if (!distinctiveHit) continue;
     // Single-token titles need a near-exact hit to avoid false positives.
     const threshold = titleTokens.length === 1 ? 0.85 : 0.6;
-    const score = coverage * (0.85 + 0.15 * (strong / titleTokens.length));
+    const coverageScore = coverage * (0.85 + 0.15 * (strong / titleTokens.length));
+    const score = Math.max(coverageScore, prefixScore);
     if (score >= threshold && (!best || score > best.score)) {
       best = { movie, score };
     }

@@ -52,7 +52,9 @@ export function fuzzyScore(query: string, target: string): number {
   const t = normalize(target);
   if (!q || !t) return 0;
   if (q === t) return 1;
-  if (t.includes(q)) return 0.95;
+  // Substring shortcut only for queries long enough to be meaningful —
+  // otherwise "i" ⊂ "jimi" or "any" ⊂ "tany" would score 0.95.
+  if (q.length >= 4 && t.includes(q)) return 0.95;
 
   const qTokens = q.split(' ');
   const tTokens = t.split(' ');

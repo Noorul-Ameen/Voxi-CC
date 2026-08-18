@@ -114,7 +114,7 @@ export function detectIntent(
   }
 
   if (
-    /\b(what time|show ?times?|timings?|times available)\b/.test(msg) &&
+    /\b(what times?|show ?times?|timings?|times?\s+(are\s+)?available)\b/.test(msg) &&
     (state.selectedMovie || entities.movie)
   ) {
     return entities.timePick !== undefined ? 'select_showtime' : 'change_showtime';
@@ -225,6 +225,13 @@ function applyTransition(
   switch (intent) {
     case 'reset_conversation': {
       const id = state.conversationId;
+      // Explicitly clear optional selections (Object.assign alone would keep
+      // keys that are absent from the fresh initial state).
+      state.selectedMovie = undefined;
+      state.selectedCinema = undefined;
+      state.selectedDate = undefined;
+      state.selectedFormat = undefined;
+      clearShowtimeDependents(state);
       Object.assign(state, createInitialState(id));
       return;
     }
@@ -535,7 +542,12 @@ async function discoveryResponse(input: ComposeInput): Promise<ConversationRespo
   const filters: FilterState = { ...state.activeFilters };
   if (state.selectedCinema) filters.cinemaId = state.selectedCinema.id;
   if (state.selectedDate) filters.date = state.selectedDate;
-  if (state.selectedMovie && intent !== 'discover_movie' && intent !== 'filter_movies') {
+  // Movie-centred view: an active movie stays in focus unless the user is
+  // clearly browsing again (new discovery, or a language/genre/family filter).
+  const browsingAgain =
+    intent === 'discover_movie' ||
+    (intent === 'filter_movies' && !!(entities.language || entities.genre || entities.familySafe));
+  if (state.selectedMovie && !browsingAgain) {
     filters.query = undefined;
     /* Movie-centred view: fetch its showtimes for the (possibly new) context. */
     const date = state.selectedDate ?? today;
