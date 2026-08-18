@@ -1,0 +1,61 @@
+// Cloudflare Workers configuration — VOX Conversational Commerce
+// Environments: default (development), staging, production.
+// Secrets (set via `wrangler secret put <NAME> [--env <env>]`, never committed):
+//   ELEVENLABS_API_KEY   — server-side key used to mint signed voice sessions
+//   MONITORING_SECRET    — bearer token protecting detailed monitoring output
+//   VOX_API_KEY          — MAF/Apigee partner API key (protected commerce; optional)
+//   VOX_CLIENT_SECRET    — MAF/Apigee partner secret (protected commerce; optional)
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vox-conversational-commerce",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "binding": "ASSETS"
+  },
+  "observability": { "enabled": true },
+  "kv_namespaces": [
+    { "binding": "VOX_CACHE", "id": "vox_cache_dev" }
+  ],
+  "vars": {
+    "ENVIRONMENT": "development",
+    "VOX_BASE_URL": "https://uae.voxcinemas.com",
+    "VOX_ASSETS_URL": "https://assets.voxcinemas.com",
+    // MAF/Apigee partner API base — protected commerce operations stay
+    // fail-closed unless this plus VOX_API_KEY/VOX_CLIENT_SECRET are configured.
+    "VOX_PARTNER_API_BASE_URL": "",
+    "ELEVENLABS_AGENT_ID": "",
+    // "demo" allows clearly-labelled simulated seat/F&B previews in the UI.
+    // MUST be "production" in production: protected commerce is then strictly
+    // unavailable unless genuine VOX partner APIs are configured.
+    "COMMERCE_MODE": "demo"
+  },
+  "env": {
+    "staging": {
+      "name": "vox-conversational-commerce-staging",
+      "kv_namespaces": [{ "binding": "VOX_CACHE", "id": "vox_cache_staging" }],
+      "vars": {
+        "ENVIRONMENT": "staging",
+        "VOX_BASE_URL": "https://uae.voxcinemas.com",
+        "VOX_ASSETS_URL": "https://assets.voxcinemas.com",
+        "VOX_PARTNER_API_BASE_URL": "",
+        "ELEVENLABS_AGENT_ID": "",
+        "COMMERCE_MODE": "demo"
+      }
+    },
+    "production": {
+      "name": "vox-conversational-commerce-production",
+      "kv_namespaces": [{ "binding": "VOX_CACHE", "id": "vox_cache_production" }],
+      "vars": {
+        "ENVIRONMENT": "production",
+        "VOX_BASE_URL": "https://uae.voxcinemas.com",
+        "VOX_ASSETS_URL": "https://assets.voxcinemas.com",
+        "VOX_PARTNER_API_BASE_URL": "",
+        "ELEVENLABS_AGENT_ID": "",
+        "COMMERCE_MODE": "production"
+      }
+    }
+  }
+}
