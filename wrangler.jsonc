@@ -29,7 +29,7 @@
     // MAF/Apigee partner API base — protected commerce operations stay
     // fail-closed unless this plus VOX_API_KEY/VOX_CLIENT_SECRET are configured.
     "VOX_PARTNER_API_BASE_URL": "",
-    "ELEVENLABS_AGENT_ID": "",
+    "ELEVENLABS_AGENT_ID": "agent_1201m0b6kjzje0ctytdqs8t8eae8",
     // "demo" allows clearly-labelled simulated seat/F&B previews in the UI.
     // MUST be "production" in production: protected commerce is then strictly
     // unavailable unless genuine VOX partner APIs are configured.
@@ -44,7 +44,7 @@
         "VOX_BASE_URL": "https://uae.voxcinemas.com",
         "VOX_ASSETS_URL": "https://assets.voxcinemas.com",
         "VOX_PARTNER_API_BASE_URL": "",
-        "ELEVENLABS_AGENT_ID": "",
+        "ELEVENLABS_AGENT_ID": "agent_1201m0b6kjzje0ctytdqs8t8eae8",
         "COMMERCE_MODE": "demo"
       }
     },
@@ -56,7 +56,7 @@
         "VOX_BASE_URL": "https://uae.voxcinemas.com",
         "VOX_ASSETS_URL": "https://assets.voxcinemas.com",
         "VOX_PARTNER_API_BASE_URL": "",
-        "ELEVENLABS_AGENT_ID": "",
+        "ELEVENLABS_AGENT_ID": "agent_1201m0b6kjzje0ctytdqs8t8eae8",
         "COMMERCE_MODE": "production"
       }
     }
