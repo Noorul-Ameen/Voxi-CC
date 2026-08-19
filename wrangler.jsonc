@@ -20,7 +20,7 @@
   },
   "observability": { "enabled": true },
   "kv_namespaces": [
-    { "binding": "VOX_CACHE", "id": "vox_cache_dev" }
+    { "binding": "VOX_CACHE", "id": "5fa16b7c80ae47ef8c360ab06f95db2c" }
   ],
   "vars": {
     "ENVIRONMENT": "development",
@@ -38,7 +38,7 @@
   "env": {
     "staging": {
       "name": "vox-conversational-commerce-staging",
-      "kv_namespaces": [{ "binding": "VOX_CACHE", "id": "vox_cache_staging" }],
+      "kv_namespaces": [{ "binding": "VOX_CACHE", "id": "24a6683a77504912a5e976791f70505f" }],
       "vars": {
         "ENVIRONMENT": "staging",
         "VOX_BASE_URL": "https://uae.voxcinemas.com",
@@ -50,7 +50,7 @@
     },
     "production": {
       "name": "vox-conversational-commerce-production",
-      "kv_namespaces": [{ "binding": "VOX_CACHE", "id": "vox_cache_production" }],
+      "kv_namespaces": [{ "binding": "VOX_CACHE", "id": "5a0d2d408a5f4c5aa6c8ea0e17975121" }],
       "vars": {
         "ENVIRONMENT": "production",
         "VOX_BASE_URL": "https://uae.voxcinemas.com",
