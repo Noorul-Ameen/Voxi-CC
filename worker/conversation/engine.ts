@@ -418,7 +418,7 @@ async function handleCommerceIntents(
       return {
         assistantMessage:
           `${capability} through this assistant requires the official VOX booking API, which isn't connected in this environment — I never simulate a real booking. ` +
-          `Your selected showtime is genuine: ${st.timeLabel} (${st.formatLabel}) at ${st.cinemaName} on ${formatDateLabel(st.date)}. ` +
+          `Your selected showtime is genuine: ${st.timeLabel} (${st.formatLabel}) at ${st.cinemaName} ${onDate(st.date)}. ` +
           `Complete it securely on VOX here: ${st.bookingUrl}`,
         suggestedActions: [
           { label: 'Change showtime', message: 'Show other times' },
@@ -502,7 +502,7 @@ async function discoveryResponse(input: ComposeInput): Promise<ConversationRespo
           ...base,
           updatedConversationState: state,
           assistantMessage:
-            `Locked in: ${state.selectedMovie.title} at ${chosen.cinemaName}, ${formatDateLabel(date, now)} at ${chosen.timeLabel} (${chosen.formatLabel}). ` +
+            `Locked in: ${state.selectedMovie.title} at ${chosen.cinemaName}, ${onDate(date, now)} at ${chosen.timeLabel} (${chosen.formatLabel}). ` +
             `To buy tickets, continue on VOX's secure booking page — this is a genuine session.`,
           showtimes: [chosen],
           suggestedActions: [
@@ -515,7 +515,7 @@ async function discoveryResponse(input: ComposeInput): Promise<ConversationRespo
       if (candidates.length > 0) {
         return {
           ...base,
-          assistantMessage: `I couldn't find a session at ${formatMinutes(entities.timePick)} ${state.selectedCinema ? `at ${state.selectedCinema.name} ` : ''}on ${formatDateLabel(date, now)}. Here are the genuine times available:`,
+          assistantMessage: `I couldn't find a session at ${formatMinutes(entities.timePick)} ${state.selectedCinema ? `at ${state.selectedCinema.name} ` : ''}${onDate(date, now)}. Here are the genuine times available:`,
           showtimes: candidates,
           suggestedActions: candidates.slice(0, 3).map((st) => ({
             label: `${st.timeLabel} ${st.formatLabel}`,
@@ -526,7 +526,7 @@ async function discoveryResponse(input: ComposeInput): Promise<ConversationRespo
     } else if (candidates.length > 0) {
       return {
         ...base,
-        assistantMessage: `Here are the showtimes for ${state.selectedMovie.title}${state.selectedCinema ? ` at ${state.selectedCinema.name}` : ''} on ${formatDateLabel(date, now)}:`,
+        assistantMessage: `Here are the showtimes for ${state.selectedMovie.title}${state.selectedCinema ? ` at ${state.selectedCinema.name}` : ''} ${onDate(date, now)}:`,
         showtimes: candidates,
         suggestedActions: candidates.slice(0, 3).map((st) => ({
           label: `${st.timeLabel} ${st.formatLabel}`,
@@ -567,7 +567,7 @@ async function discoveryResponse(input: ComposeInput): Promise<ConversationRespo
     if (formatFiltered.length === 0) {
       const scope = [
         state.selectedCinema ? `at ${state.selectedCinema.name}` : '',
-        `on ${formatDateLabel(date, now)}`,
+        onDate(date, now),
         filters.format ? `in ${filters.format}` : '',
         filters.timeFromMinutes !== undefined ? `after ${formatMinutes(filters.timeFromMinutes)}` : '',
       ].filter(Boolean).join(' ');
@@ -594,7 +594,7 @@ async function discoveryResponse(input: ComposeInput): Promise<ConversationRespo
       assistantMessage:
         `${state.selectedMovie.title} — ${formatFiltered.length} session(s) ` +
         `${state.selectedCinema ? `at ${state.selectedCinema.name}` : `across ${cinemasShown.length} cinema(s)`} ` +
-        `on ${formatDateLabel(date, now)}. Pick a time and I'll take you to VOX to book.`,
+        `${onDate(date, now)}. Pick a time and I'll take you to VOX to book.`,
       showtimes: formatFiltered,
       availableDates,
       movies: [state.selectedMovie],
@@ -642,6 +642,15 @@ async function discoveryResponse(input: ComposeInput): Promise<ConversationRespo
       message: `Tell me about ${m.title}`,
     })),
   };
+}
+
+
+/** "Today"/"Tomorrow" read naturally without "on". */
+function onDate(date: string, now?: Date): string {
+  const label = formatDateLabel(date, now);
+  if (label === 'Today') return 'today';
+  if (label === 'Tomorrow') return 'tomorrow';
+  return `on ${label}`;
 }
 
 function describeFilters(f: FilterState): string {
