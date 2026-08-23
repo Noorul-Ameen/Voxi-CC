@@ -9,11 +9,11 @@
 
 import type { ProviderStatus, VoiceSessionGrant } from '@shared/models';
 
-const ELEVENLABS_API = 'https://api.elevenlabs.io';
+const RESIDENCY_HOSTS: Record<string, string> = { global: 'https://api.elevenlabs.io', us: 'https://api.us.residency.elevenlabs.io', 'eu-residency': 'https://api.eu.residency.elevenlabs.io', 'in-residency': 'https://api.in.residency.elevenlabs.io' };
 
 export interface ElevenLabsSessionConfig {
   apiKey?: string;
-  agentId?: string;
+    agentId?: string; /** global (default) | us | eu-residency | in-residency */ serverLocation?: string;
 }
 
 export class ElevenLabsSessionService {
@@ -24,17 +24,17 @@ export class ElevenLabsSessionService {
   }
 
   async createSessionGrant(): Promise<VoiceSessionGrant | { error: string }> {
-    const { apiKey, agentId } = this.config;
+        const { apiKey, agentId } = this.config; const serverLocation = this.config.serverLocation && this.config.serverLocation in RESIDENCY_HOSTS ? this.config.serverLocation : 'global';
     if (!agentId) {
       return { error: 'Voice is not configured in this environment.' };
     }
     if (!apiKey) {
       // Public agent mode: the agent must be marked public in ElevenLabs.
-      return { mode: 'public_agent', agentId };
+            return { mode: 'public_agent', agentId, serverLocation };
     }
     try {
       const res = await fetch(
-        `${ELEVENLABS_API}/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`,
+                `${RESIDENCY_HOSTS[serverLocation]}/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`,
         {
           headers: { 'xi-api-key': apiKey },
           signal: AbortSignal.timeout(10_000),
@@ -48,7 +48,7 @@ export class ElevenLabsSessionService {
       if (!body.signed_url || !body.signed_url.startsWith('wss://')) {
         return { error: 'Voice session response was invalid.' };
       }
-      return { mode: 'signed_url', signedUrl: body.signed_url, agentId };
+            return { mode: 'signed_url', signedUrl: body.signed_url, agentId, serverLocation };
     } catch {
       return { error: 'Voice session could not be created (network error).' };
     }
