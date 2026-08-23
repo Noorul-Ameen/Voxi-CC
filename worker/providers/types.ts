@@ -32,6 +32,7 @@ export interface CinemaProvider {
 }
 
 export interface ShowtimeProvider {
+  todayDate(): string; // Today's Dubai-local date; injectable clock in tests
   /** Showtimes for a movie on a Dubai-local date across all cinemas. */
   getShowtimesForMovie(movieId: string, date: string): Promise<Showtime[]>;
   /** Showtimes for a cinema on a Dubai-local date across all movies. */
