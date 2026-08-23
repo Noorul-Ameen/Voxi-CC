@@ -102,7 +102,8 @@ export class VoxDiscoveryProvider
   }
 
   /* ── Showtimes ── */
-
+  todayDate(): string { return nowInDubai(this.nowFn()).date; }
+  
   async getShowtimesForMovie(movieId: string, date: string): Promise<Showtime[]> {
     if (!/^[a-z0-9-]+$/.test(movieId)) return [];
     const today = nowInDubai(this.nowFn()).date;
