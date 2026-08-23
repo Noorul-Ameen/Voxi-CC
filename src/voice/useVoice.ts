@@ -102,12 +102,13 @@ export function useVoice() {
       }, SESSION_START_TIMEOUT_MS);
       activeRef.current = true;
       if (grant.mode === 'signed_url') {
-        conversation.startSession({ signedUrl: grant.signedUrl, dynamicVariables });
+                conversation.startSession({ signedUrl: grant.signedUrl, dynamicVariables, serverLocation: grant.serverLocation });
       } else {
         conversation.startSession({
           agentId: grant.agentId,
           connectionType: 'websocket',
           dynamicVariables,
+          serverLocation: grant.serverLocation,
         });
       }
       // Connection confirmation arrives via onConnect; clear timer there too.
