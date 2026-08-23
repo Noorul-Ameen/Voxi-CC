@@ -244,6 +244,7 @@ export function createApi(
   api.get('/health', (c) =>
     c.json({ status: 'ok', environment: c.env.ENVIRONMENT, time: new Date().toISOString() }),
   );
+  api.get('/diagnostics/upstream', async (c) => { if (c.env.ENVIRONMENT === 'production') return apiError(c, { code: 'NOT_FOUND', message: 'Not available', retryable: false }, 404); const UA = 'VoxConversationalCommerce/1.0 (+https://github.com/Noorul-Ameen/Voxi-CC)'; const probes: [string, string, string][] = [['vox-no-ua', 'https://uae.voxcinemas.com/cinemas', ''], ['vox-ua', 'https://uae.voxcinemas.com/cinemas', UA], ['vox-robots', 'https://uae.voxcinemas.com/robots.txt', UA], ['assets-akamai', 'https://assets.voxcinemas.com/robots.txt', UA], ['control-example', 'https://example.com/', UA]]; const results: unknown[] = []; for (const [name, url, ua] of probes) { const t0 = Date.now(); try { const headers: Record<string, string> = { accept: 'text/html,application/xhtml+xml', 'accept-language': 'en' }; if (ua) headers['user-agent'] = ua; const res = await fetch(url, { headers, signal: AbortSignal.timeout(12000), redirect: 'follow' }); const body = await res.text(); results.push({ name, status: res.status, bytes: body.length, ms: Date.now() - t0, server: res.headers.get('server') }); } catch (err) { results.push({ name, error: err instanceof Error ? err.name + ': ' + err.message : 'unknown error', ms: Date.now() - t0 }); } } return c.json({ environment: c.env.ENVIRONMENT, results }); });
 
   api.get('/monitoring/status', async (c) => {
     const services = c.get('services');
