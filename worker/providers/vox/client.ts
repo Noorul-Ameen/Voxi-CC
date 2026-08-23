@@ -30,7 +30,7 @@ const DEFAULTS = {
   retries: 1,
   // Empty string = do not set a User-Agent header (the runtime default is
   // used). Override via VOX_USER_AGENT when an environment requires it.
-  userAgent: '',
+    userAgent: 'VoxConversationalCommerce/1.0 (+https://github.com/Noorul-Ameen/Voxi-CC)',
 };
 
 export class VoxClient {
