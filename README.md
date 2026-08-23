@@ -4,7 +4,7 @@ Conversational cinema discovery and progressive booking for **VOX Cinemas UAE**.
 
 ## Technology stack
 
-TypeScript end-to-end. React 19 + Vite 8 SPA, Zustand state, Hono on Cloudflare Workers, Cloudflare KV cache, Zod validation, ElevenLabs Conversational AI (`@elevenlabs/react`), Vitest + Playwright, GitHub Actions CI/CD, Wrangler deployments.
+TypeScript end-to-end. React 19 + Vite 8 SPA, Zustand state, Hono on Cloudflare Workers, Cloudflare KV cache, Zod validation, ElevenLabs Conversational AI (`@elevenlabs/react`), Vitest + Playwright, GitHub Actions CI/CD, Wrangler deployments. Staging auto-deploys from `main` via Cloudflare Workers Builds.
 
 ## Architecture summary
 
