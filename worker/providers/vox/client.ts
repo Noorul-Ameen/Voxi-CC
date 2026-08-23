@@ -42,7 +42,7 @@ export class VoxClient {
   private static recentFailures: { at: string; url: string; code: string }[] = [];
 
   constructor(options: VoxClientOptions) {
-    this.opts = { ...DEFAULTS, ...options };
+        this.opts = { ...DEFAULTS, ...(Object.fromEntries(Object.entries(options).filter(([, v]) => v !== undefined)) as VoxClientOptions) };
   }
 
   static getRecentFailures(): { at: string; url: string; code: string }[] {
