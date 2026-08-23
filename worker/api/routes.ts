@@ -5,7 +5,6 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import type { ApiError, ConversationRequest } from '@shared/models';
-import { nowInDubai } from '@shared/utils';
 import { createServices, type AppServices } from '../providers/registry';
 import { VoxClient, UpstreamError } from '../providers/vox/client';
 import { normalizeState, runConversationTurn } from '../conversation/engine';
@@ -133,7 +132,7 @@ export function createApi(
       return apiError(c, { code: 'BAD_REQUEST', message: parsed.error.issues[0]?.message ?? 'Invalid query', retryable: false }, 400);
     }
     const { movieId, cinemaId } = parsed.data;
-    const date = parsed.data.date ?? nowInDubai().date;
+        const date = parsed.data.date ?? c.get('services').vox.todayDate();
     try {
       const services = c.get('services');
       let showtimes = movieId
