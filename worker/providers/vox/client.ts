@@ -28,8 +28,8 @@ const DEFAULTS = {
   cacheTtl: 300, // 5 minutes — showtimes freshness vs. politeness to VOX
   timeoutMs: 12_000,
   retries: 1,
-  // Empty string = do not set a User-Agent header (the runtime default is
-  // used). Override via VOX_USER_AGENT when an environment requires it.
+    // Descriptive default UA — workerd sends no User-Agent, which the VOX
+    // edge rejects (520). Override via VOX_USER_AGENT where required.
     userAgent: 'VoxConversationalCommerce/1.0 (+https://github.com/Noorul-Ameen/Voxi-CC)',
 };
 
