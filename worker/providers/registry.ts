@@ -30,6 +30,7 @@ export function createServices(env: WorkerEnv): AppServices {
   const voice = new ElevenLabsSessionService({
     apiKey: env.ELEVENLABS_API_KEY,
     agentId: env.ELEVENLABS_AGENT_ID,
+    serverLocation: env.ELEVENLABS_SERVER_LOCATION,
   });
 
   return {

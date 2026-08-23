@@ -29,5 +29,5 @@ export interface VoiceTranscript {
 /** Response of POST /api/voice/session. Exactly one of the two connection
  *  modes is returned; neither exposes the private API key. */
 export type VoiceSessionGrant =
-  | { mode: 'signed_url'; signedUrl: string; agentId: string }
-  | { mode: 'public_agent'; agentId: string };
+    | { mode: 'signed_url'; signedUrl: string; agentId: string; serverLocation?: string }
+  | { mode: 'public_agent'; agentId: string; serverLocation?: string };

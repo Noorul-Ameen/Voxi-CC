@@ -8,6 +8,8 @@ export interface WorkerEnv {
   VOX_ASSETS_URL: string;
   VOX_PARTNER_API_BASE_URL: string;
   ELEVENLABS_AGENT_ID: string;
+  /** ElevenLabs data-residency region: global | us | eu-residency | in-residency. */
+  ELEVENLABS_SERVER_LOCATION?: string;
   /** Optional User-Agent override for VOX fetches (empty = runtime default). */
   VOX_USER_AGENT?: string;
   COMMERCE_MODE: 'demo' | 'production';

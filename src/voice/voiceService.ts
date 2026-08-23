@@ -63,8 +63,8 @@ export function describeStateForAgent(state: ConversationState): string {
 }
 
 export type VoiceGrant =
-  | { mode: 'signed_url'; signedUrl: string; agentId: string }
-  | { mode: 'public_agent'; agentId: string };
+    | { mode: 'signed_url'; signedUrl: string; agentId: string; serverLocation?: string }
+  | { mode: 'public_agent'; agentId: string; serverLocation?: string };
 
 /** Obtain a voice session grant from the Worker (which holds the API key).
  *  Throws a user-presentable Error when voice is unavailable. */
